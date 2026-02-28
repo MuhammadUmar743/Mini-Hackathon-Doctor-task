@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Clinic - Smart Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-heartbeat"></i> AI Clinic</h2>
+            </div>
+            <ul>
+                <li class="nav-label">Main</li>
+                <li class="active" onclick="switchRole('doctor')"><i class="fas fa-user-md"></i> Doctor Dashboard</li>
+                <li onclick="switchRole('admin')"><i class="fas fa-chart-pie"></i> Admin Panel</li>
+                
+                <li class="nav-label">Management</li>
+                <li><i class="fas fa-users"></i> Patients</li>
+                <li><i class="fas fa-calendar-alt"></i> Appointments</li>
+                
+                <li class="nav-label">AI Features</li>
+                <li id="ai-feature-nav"><i class="fas fa-robot"></i> Smart Diagnosis <span class="badge">PRO</span></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <div class="header-title">
+                    <h1>Welcome, Dr. Hamza</h1>
+                    <p id="current-view-text">Doctor Dashboard View</p>
+                </div>
+                <div class="user-profile">
+                    <div class="role-switcher">
+                        <button class="btn-tab active" id="doc-tab" onclick="switchRole('doctor')">Doctor</button>
+                        <button class="btn-tab" id="admin-tab" onclick="switchRole('admin')">Admin</button>
+                    </div>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </header>
+<li style="color: #e74c3c;" class="logo" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</li>
+            <div id="stats-container" class="stats-grid">
+                </div>
+
+            <div class="dashboard-charts" id="charts-section">
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-area"></i> Patient Growth & Analytics</h3>
+                    <canvas id="patientChart"></canvas>
+                </div>
+            </div>
+
+            <section class="patient-list-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-clipboard-list"></i> Recent Patients</h3>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-patient" placeholder="Search patients...">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="patients-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Age/Gender</th>
+                                <th>Contact</th>
+                                <th>Date Added</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patient-list-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="ai-section">
+                <h3><i class="fas fa-magic"></i> Smart Symptom Checker</h3>
+                <div class="form-group">
+                    <textarea id="symptoms-input" placeholder="Enter symptoms (e.g. fever, headache)..."></textarea>
+                    <button id="analyze-btn" class="btn-primary">Analyze with AI</button>
+                </div>
+                <div id="ai-result" class="result-box hidden"></div>
+            </section>
+
+            <section class="prescription-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-file-prescription"></i> Create Prescription</h3>
+                    <span class="ai-tag"><i class="fas fa-robot"></i> AI Suggestions Active</span>
+                </div>
+                <div class="presc-grid">
+                    <div class="form-group">
+                        <label>Select Patient</label>
+                        <select id="presc-patient-select">
+                            <option value="">-- Select Patient --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Diagnosis</label>
+                        <input type="text" id="presc-diagnosis" placeholder="Type diagnosis (e.g. fever)...">
+                    </div>
+                </div>
+
+                <div id="medicine-list">
+                    <div class="med-row">
+                        <input type="text" class="med-name" placeholder="Medicine Name">
+                        <input type="text" class="med-dose" placeholder="Dosage">
+                        <input type="text" class="med-duration" placeholder="Duration">
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" class="btn-secondary" onclick="addMedRow()"><i class="fas fa-plus"></i> Add Medicine</button>
+                    <button type="button" class="btn-primary" onclick="generatePrescription()"><i class="fas fa-print"></i> Generate PDF</button>
+                </div>
+            </section>
+
+            <section class="appointment-section">
+                <h3><i class="fas fa-calendar-check"></i> Appointment Scheduler</h3>
+                <div class="appointment-grid">
+                    <div class="form-group">
+                        <label>Patient</label>
+                        <select id="appt-patient-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date & Time</label>
+                        <input type="datetime-local" id="appt-time">
+                    </div>
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <select id="appt-reason">
+                            <option>Regular Checkup</option>
+                            <option>Follow-up</option>
+                            <option>Emergency</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn-primary" onclick="scheduleAppointment()">Book Slot</button>
+                
+                <div class="upcoming-list">
+                    <h4>Upcoming Slots</h4>
+                    <ul id="appointment-list" class="appt-list"></ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="patient-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Register Patient</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <form id="add-patient-form">
+                <div class="form-row">
+                    <input type="text" id="p-name" placeholder="Full Name" required>
+                    <input type="number" id="p-age" placeholder="Age" required>
+                </div>
+                <div class="form-row">
+                    <select id="p-gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                    <input type="tel" id="p-contact" placeholder="Phone Number" required>
+                </div>
+                <textarea id="p-history" placeholder="Medical History"></textarea>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Patient</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="view-modal" class="modal">
+        <div class="modal-content history-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-medical"></i> Medical File</h2>
+                <span class="close-history">&times;</span>
+            </div>
+            <div id="patient-details-view" class="modal-body">
+                <h3 id="view-name"></h3>
+                <p id="view-age-gender"></p>
+                <p id="view-contact"></p>
+                <hr>
+                <div class="history-box"><p id="view-history"></p></div>
+            </div>
+        </div>
+    </div>
+
+    <button id="open-modal-btn" class="btn-add"><i class="fas fa-plus"></i> Add Patient</button>
+
+    <script src="script.js"></script>
+</body>
+</html>

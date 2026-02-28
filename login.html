@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Clinic - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .auth-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f2f5;
+            margin-left: 20%;
+        }
+        .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .auth-card h2 { color: #2874a6; margin-bottom: 20px; }
+        .auth-card input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .toggle-link {
+            margin-top: 15px;
+            display: block;
+            cursor: pointer;
+            color: #2874a6;
+            font-size: 14px;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div id="login-box" class="auth-card">
+            <h2><i class="fas fa-user-md"></i> Doctor Login</h2>
+            <input type="email" id="login-email" placeholder="Email Address">
+            <input type="password" id="login-pass" placeholder="Password">
+            <button class="btn-primary" style="width: 100%;" onclick="handleLogin()">Login</button>
+            <span class="toggle-link" onclick="toggleAuth()">New Doctor? Create Account</span>
+        </div>
+
+        <div id="signup-box" class="auth-card hidden">
+            <h2><i class="fas fa-notes-medical"></i> Register Doctor</h2>
+            <input type="text" id="reg-name" placeholder="Full Name">
+            <input type="email" id="reg-email" placeholder="Email Address">
+            <input type="password" id="reg-pass" placeholder="Create Password">
+            <button class="btn-primary" style="width: 100%;" onclick="handleSignup()">Sign Up</button>
+            <span class="toggle-link" onclick="toggleAuth()">Already have an account? Login</span>
+        </div>
+    </div>
+
+    <script>
+        function toggleAuth() {
+            document.getElementById('login-box').classList.toggle('hidden');
+            document.getElementById('signup-box').classList.toggle('hidden');
+        }
+
+        function handleSignup() {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-pass').value;
+
+            if(!name || !email || !pass) return alert("Sub fields bharein!");
+
+            let users = JSON.parse(localStorage.getItem('clinic_users')) || [];
+            
+            // Check if user exists
+            if(users.find(u => u.email === email)) return alert("Email pehle se registered hai!");
+
+            users.push({ name, email, pass });
+            localStorage.setItem('clinic_users', JSON.stringify(users));
+            alert("Account ban gaya! Ab login karein.");
+            toggleAuth();
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+
+            let users = JSON.parse(localStorage.getItem('clinic_users')) || [];
+            const user = users.find(u => u.email === email && u.pass === pass);
+
+            if(user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = "index.html"; // Dashboard pe bhejo
+            } else {
+                alert("Ghalat Email ya Password!");
+            }
+        }
+    </script>
+</body>
+</html>
